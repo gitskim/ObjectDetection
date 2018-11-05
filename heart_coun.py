@@ -18,6 +18,7 @@ with open(filename) as mfile:
             mdict[result] += 1
 
 orted_x = sorted([(value,key) for (key,value) in mdict.items()], reverse=True)
-for i in range(5):
+for i in range(10):
     print(orted_x[i])
+
 # print(orted_x)
