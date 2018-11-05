@@ -1,6 +1,4 @@
-import os
 import sys
-import numpy as np
 
 filename = sys.argv[1]
 
@@ -19,11 +17,5 @@ with open(filename) as mfile:
         else:
             mdict[result] += 1
 
-maxval = 0
-maxkey = ''
-for k, v in mdict.items():
-    if maxval < v:
-        maxval = v
-        maxkey = k
-
-print(mdict)
+orted_x = sorted([(value,key) for (key,value) in mdict.items()], reverse=True)
+print(orted_x)
