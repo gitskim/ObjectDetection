@@ -23,7 +23,7 @@ def read_from_file(filename, probability, amnt):
     for p in prob:
         info = p.split(":")
         number = float(info[0])
-        if number >= probability:
+        if number >= float(probability):
             if info[1] not in d:
                 d[info[1]] = 0
             d[info[1]] += 1
