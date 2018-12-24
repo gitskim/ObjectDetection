@@ -1,10 +1,11 @@
-import os, subprocess
+import os, sys, csv, subprocess
 
 file_type = '.mp4'
 file_types = ['.mp4', '.MXF', '.mxf']
 
 
 def run_command(command, logfile=None, print_output=False, return_output=False):
+    print(f'command: {command}')
     if logfile != None:
         command += ' |& tee ' + logfile
     output = subprocess.Popen(
@@ -35,14 +36,14 @@ for root, dirs, files in os.walk(source_roots):
                 print(file_name_w_path)
                 mfiles_to_extract.append(file_name_w_path)
 
-print(f'Total # of files that end with .mp4, .MXF, .mxf: {len(mfiles_to_extract)} \n from {mfiles_to_extract}.')
+print(f'Total # of files that end with .mp4, .MXF, .mxf: {len(mfiles_to_extract)}. \n')
 
 # extract
 dest_root = '/dvmm-filer2/projects/Hearst/keyframes/keyframes2_dec_20'
 
 unsuc = []
 for i, filename in enumerate(mfiles_to_extract):
-    dest_dir = ''
+    dest_dir = filename.replace('/dvmm-filer2/projects/Hearst/data_new', dest_root)
 
     if os.path.exists(dest_dir):
         print('path exists - SKIPPING')
@@ -50,10 +51,10 @@ for i, filename in enumerate(mfiles_to_extract):
 
     print('extraction about to start in: ')
     print(dest_dir)
-    run_command(f'mkdir {dest_dir}')
+    run_command(f"mkdir '{dest_dir}'")
     out = run_command(
-        f"ffmpeg -i {filename} -vf select='eq(n\,1)+gt(scene\,0.2)' -vsync vfr {dest_dir}/frame%05d.png",
-        logfile=f'{dest_dir}/log.txt',
+        f"ffmpeg -i '{filename}' -vf select='eq(n\,1)+gt(scene\,0.2)' -vsync vfr '{dest_dir}/frame%05d.png'",
+        logfile=f"'{dest_dir}/log.txt'",
         return_output=True
     )
     if 'failed' in out:
