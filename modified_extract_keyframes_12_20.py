@@ -1,4 +1,4 @@
-import os
+import os, subprocess
 
 file_type = '.mp4'
 file_types = ['.mp4', '.MXF', '.mxf']
