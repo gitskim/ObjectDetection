@@ -51,7 +51,7 @@ for i, filename in enumerate(mfiles_to_extract):
 
     print('extraction about to start in: ')
     print(dest_dir)
-    run_command(f"mkdir '{dest_dir}'")
+    run_command(f"mkdir -p '{dest_dir}'")
     out = run_command(
         f"ffmpeg -i '{filename}' -vf select='eq(n\,1)+gt(scene\,0.2)' -vsync vfr '{dest_dir}/frame%05d.png'",
         logfile=f"'{dest_dir}/log.txt'",
