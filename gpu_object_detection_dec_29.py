@@ -4,6 +4,8 @@ import six.moves.urllib as urllib
 import sys
 import tarfile
 import tensorflow as tf
+from pprint import pprint
+
 import zipfile
 
 from distutils.version import StrictVersion
@@ -24,7 +26,7 @@ from object_detection.utils import ops as utils_ops
 
 print("model")
 # What model to download.
-MODEL_NAME = 'faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28'
+MODEL_NAME = 'faster_rcnn_nas_coco_2018_01_28'
 MODEL_FILE = MODEL_NAME + '.tar.gz'
 DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 
@@ -196,6 +198,8 @@ for root, dirs, files in os.walk(PATH_DIR):
         else:
             dictionary[first] = {second: {third: fourth}}
 
+        pprint(dictionary)
+
         ''' 
         # Visualization of the results of a detection.
         print("new IMAGE image should show - 1 starting 0.5")
@@ -212,3 +216,7 @@ for root, dirs, files in os.walk(PATH_DIR):
         plt.figure(figsize=IMAGE_SIZE)
         plt.imshow(image_np)
         '''
+
+result_file_name = "dec_29_object_dectect_ms_coco.file"
+with open(result_file_name, 'wb') as handle:
+    pickle.dump(dictionary, handle, protocol=pickle.HIGHEST_PROTOCOL)
