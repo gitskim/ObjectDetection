@@ -94,8 +94,9 @@ for root, dirs, files in os.walk(folder):
         total += 1
         # output the prediction
         for i in range(0, predictions_to_return):
-            x.update({classes[idx[i]]: probs[i]})
+            x.update({classes[idx[i]]: float(probs[i])})
 
+        print(f'x dictionary is: {x}')
         # save the results
         namelist = filename.split('/')
         namelist2 = [""] * 3
