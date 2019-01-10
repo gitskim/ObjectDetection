@@ -76,7 +76,7 @@ for root, dirs, files in os.walk(folder):
     for mfile in [f for f in files if f.endswith(pic_type)]:
         filename = os.path.join(root, mfile)
 
-        x = [None]*5
+        x = {}
         counter += 1
         print(counter)
 
@@ -94,7 +94,7 @@ for root, dirs, files in os.walk(folder):
         total += 1
         # output the prediction
         for i in range(0, predictions_to_return):
-            x[i] = '{:.3f}:{}'.format(probs[i], classes[idx[i]])
+            x.update({classes[idx[i]]: probs[i]})
 
             # save the results
             namelist = filename.split('/')
