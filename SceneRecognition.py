@@ -122,14 +122,15 @@ for root, dirs, files in os.walk(folder):
 
         if first in dictionary:
             if second in dictionary[first]:
+                # fix the "if" part. append is not the right function. for now, the if will never run
                 if third in dictionary[first][second]:
                     dictionary[first][second][third].append(fourth)
                 else:
-                    dictionary[first][second][third] = [fourth]
+                    dictionary[first][second][third] = fourth
             else:
-                dictionary[first][second] = {third: [fourth]}
+                dictionary[first][second] = {third: fourth}
         else:
-            dictionary[first] = {second: {third: [fourth]}}
+            dictionary[first] = {second: {third: fourth}}
 
         pprint(dictionary)
 
