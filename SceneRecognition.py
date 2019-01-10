@@ -96,41 +96,41 @@ for root, dirs, files in os.walk(folder):
         for i in range(0, predictions_to_return):
             x.update({classes[idx[i]]: probs[i]})
 
-            # save the results
-            namelist = filename.split('/')
-            namelist2 = [""] * 3
+        # save the results
+        namelist = filename.split('/')
+        namelist2 = [""] * 3
 
-            for item in namelist:
-                if not item:
-                    continue
+        for item in namelist:
+            if not item:
+                continue
 
-                if item.endswith(".MXF") or item.endswith(".MP4") or item.endswith(".mp4"):
-                    namelist2[1] = item
+            if item.endswith(".MXF") or item.endswith(".MP4") or item.endswith(".mp4"):
+                namelist2[1] = item
 
-                elif item.endswith(".png"):
-                    namelist2[2] = item
+            elif item.endswith(".png"):
+                namelist2[2] = item
 
-                else:
-                    namelist2[0] = namelist2[0] + '/' + item
-
-            first = namelist2[0]
-            second = namelist2[1]
-            third = namelist2[2]
-            fourth = x
-            # d = {namelist2[0]: {namelist2[1]: {namelist2[2]: val}}}
-
-            if first in dictionary:
-                if second in dictionary[first]:
-                    if third in dictionary[first][second]:
-                        dictionary[first][second][third].append(fourth)
-                    else:
-                        dictionary[first][second][third] = fourth
-                else:
-                    dictionary[first][second] = {third: fourth}
             else:
-                dictionary[first] = {second: {third: fourth}}
+                namelist2[0] = namelist2[0] + '/' + item
 
-            pprint(dictionary)
+        first = namelist2[0]
+        second = namelist2[1]
+        third = namelist2[2]
+        fourth = x
+        # d = {namelist2[0]: {namelist2[1]: {namelist2[2]: val}}}
+
+        if first in dictionary:
+            if second in dictionary[first]:
+                if third in dictionary[first][second]:
+                    dictionary[first][second][third].append(fourth)
+                else:
+                    dictionary[first][second][third] = [fourth]
+            else:
+                dictionary[first][second] = {third: [fourth]}
+        else:
+            dictionary[first] = {second: {third: [fourth]}}
+
+        pprint(dictionary)
 
 
 result_file_name = 'scene_recognition_result_jan_10.data'
