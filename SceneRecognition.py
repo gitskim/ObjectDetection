@@ -76,7 +76,7 @@ for root, dirs, files in os.walk(folder):
     for mfile in [f for f in files if f.endswith(pic_type)]:
         filename = os.path.join(root, mfile)
 
-        x = np.array([-1, -1, -1, -1, -1])
+        x = [None]*5
         counter += 1
         print(counter)
 
