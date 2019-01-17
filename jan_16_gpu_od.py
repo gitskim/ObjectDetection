@@ -225,6 +225,8 @@ print("hi")
 image_dict = {}
 counter = 0
 flag = False
+dictionary = {}
+
 for root, dirs, files in os.walk(PATH_DIR):
 
     if flag == True:
@@ -274,9 +276,40 @@ for root, dirs, files in os.walk(PATH_DIR):
         end = time.time()
         print(f'image_dict.update: {end - start}')
         # save the results
-        with open(os.path.join('suhyun-object-test-11-17-coco.txt'), 'a') as fout:
-            fout.write(str({os.path.join(root, file):output_dict}))
-            fout.write('\n')
+
+        filename = os.path.join(root, file)
+        namelist = filename.split('/')
+        namelist2 = [""] * 3
+
+        for item in namelist:
+            if not item:
+                continue
+
+            if item.endswith(".MXF") or item.endswith(".MP4") or item.endswith(".mp4"):
+                namelist2[1] = item
+
+            elif item.endswith(".png"):
+                namelist2[2] = item
+
+            else:
+                namelist2[0] = namelist2[0] + '/' + item
+
+        first = namelist2[0]
+        second = namelist2[1]
+        third = namelist2[2]
+        fourth = output_dict
+        # d = {namelist2[0]: {namelist2[1]: {namelist2[2]: val}}}
+
+        if first in dictionary:
+            if second in dictionary[first]:
+                if third in dictionary[first][second]:
+                    dictionary[first][second][third].append(fourth)
+                else:
+                    dictionary[first][second][third] = fourth
+            else:
+                dictionary[first][second] = {third: fourth}
+        else:
+            dictionary[first] = {second: {third: fourth}}
 
 
         ''' 
@@ -295,3 +328,6 @@ for root, dirs, files in os.walk(PATH_DIR):
         plt.figure(figsize=IMAGE_SIZE)
         plt.imshow(image_np)
         '''
+result_file_name = "jan_16_object_dectect_ms_coco.file"
+with open(result_file_name, 'wb') as handle:
+    pickle.dump(dictionary, handle, protocol=pickle.HIGHEST_PROTOCOL)
