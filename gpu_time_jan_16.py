@@ -16,7 +16,7 @@ from PIL import Image
 
 # from utils import visualization_utils as vis_util
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 # This is needed since the notebook is stored in the object_detection folder.
 sys.path.append("..")
@@ -24,7 +24,9 @@ from object_detection.utils import ops as utils_ops
 
 print("model")
 # What model to download.
-MODEL_NAME = 'faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28'
+# MODEL_NAME = 'faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28'
+MODEL_NAME = 'faster_rcnn_nas_coco_2018_01_28'
+
 MODEL_FILE = MODEL_NAME + '.tar.gz'
 DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 
@@ -49,13 +51,14 @@ detection_graph = tf.Graph()
 with detection_graph.as_default():
     od_graph_def = tf.GraphDef()
 
-    
+
 with tf.gfile.GFile(PATH_TO_FROZEN_GRAPH, 'rb') as fid:
         serialized_graph = fid.read()
         od_graph_def.ParseFromString(serialized_graph)
 
         tf.import_graph_def(od_graph_def, name='')
 '''
+
 
 # category_index = label_map_util.create_category_index_from_labelmap(PATH_TO_LABELS, use_display_name=True)
 
@@ -73,76 +76,77 @@ TEST_IMAGE_PATHS = os.path.join(PATH_TO_TEST_IMAGES_DIR)
 
 # Size, in inches, of the output images.
 IMAGE_SIZE = (12, 8)
- 
-                start = time.time()
-                ops = tf.get_default_graph().get_operations()
-                end = time.time()
-                print(f'tf.get_default_graph().get_operations(): {end - start}')
-                all_tensor_names = {}
 
-                all_tensor_names = {output.name for op in ops for output in op.outputs}
-                tensor_dict = {}
-                for key in [
-                    'num_detections', 'detection_boxes', 'detection_scores',
-                    'detection_classes'#, 'detection_masks'
-                ]:
-                    tensor_name = key + ':0'
-                    if tensor_name in all_tensor_names:
-                        tensor_dict[key] = tf.get_default_graph().get_tensor_by_name(
-                            tensor_name
-                            )
-                '''
-                if 'detection_masks' in tensor_dict:
-                    start = time.time()
-                    # the following processing is only for single image
-                    detection_boxes = tf.squeeze(tensor_dict['detection_boxes'], [0])
-                    detection_masks = tf.squeeze(tensor_dict['detection_masks'], [0])
-                    # reframe is required to translate mask from box coordinates to image coordinates and fit the image size.
-                    real_num_detection = tf.cast(tensor_dict['num_detections'][0], tf.int32)
-                    detection_boxes = tf.slice(detection_boxes, [0, 0], [real_num_detection, -1])
-                    detection_masks = tf.slice(detection_masks, [0, 0, 0], [real_num_detection, -1, -1])
-                    detection_masks_reframed = utils_ops.reframe_box_masks_to_image_masks(
-                        detection_masks, detection_boxes, image.shape[0], image.shape[1])
-                    detection_masks_reframed = tf.cast(
-                        tf.greater(detection_masks_reframed, 0.5), tf.uint8)
-                    # Follow the convention by adding back the batch dimension
-                    tensor_dict['detection_masks'] = tf.expand_dims(
-                        detection_masks_reframed, 0)
-                    end = time.time()
-                    print(f'if detection_masks in tensor_dict:: {end - start}')
-                '''
+start = time.time()
+ops = tf.get_default_graph().get_operations()
+end = time.time()
+print(f'tf.get_default_graph().get_operations(): {end - start}')
+all_tensor_names = {}
 
-                start = time.time()
-                image_tensor = tf.get_default_graph().get_tensor_by_name('image_tensor:0')
-                end = time.time()
-                print(f'tf.get_default_graph().get_tensor_by_name {end - start}')
-                # up to here can be put outside no need to be repeated
+all_tensor_names = {output.name for op in ops for output in op.outputs}
+tensor_dict = {}
+for key in [
+    'num_detections', 'detection_boxes', 'detection_scores',
+    'detection_classes'  # , 'detection_masks'
+]:
+    tensor_name = key + ':0'
+    if tensor_name in all_tensor_names:
+        tensor_dict[key] = tf.get_default_graph().get_tensor_by_name(
+            tensor_name
+        )
+'''
+if 'detection_masks' in tensor_dict:
+    start = time.time()
+    # the following processing is only for single image
+    detection_boxes = tf.squeeze(tensor_dict['detection_boxes'], [0])
+    detection_masks = tf.squeeze(tensor_dict['detection_masks'], [0])
+    # reframe is required to translate mask from box coordinates to image coordinates and fit the image size.
+    real_num_detection = tf.cast(tensor_dict['num_detections'][0], tf.int32)
+    detection_boxes = tf.slice(detection_boxes, [0, 0], [real_num_detection, -1])
+    detection_masks = tf.slice(detection_masks, [0, 0, 0], [real_num_detection, -1, -1])
+    detection_masks_reframed = utils_ops.reframe_box_masks_to_image_masks(
+        detection_masks, detection_boxes, image.shape[0], image.shape[1])
+    detection_masks_reframed = tf.cast(
+        tf.greater(detection_masks_reframed, 0.5), tf.uint8)
+    # Follow the convention by adding back the batch dimension
+    tensor_dict['detection_masks'] = tf.expand_dims(
+        detection_masks_reframed, 0)
+    end = time.time()
+    print(f'if detection_masks in tensor_dict:: {end - start}')
+'''
 
-sess = tf.Session() 
+start = time.time()
+image_tensor = tf.get_default_graph().get_tensor_by_name('image_tensor:0')
+end = time.time()
+print(f'tf.get_default_graph().get_tensor_by_name {end - start}')
+# up to here can be put outside no need to be repeated
+
+sess = tf.Session()
+
+
 def run_inference_for_single_image(image):
-   # with tf.device('/device:GPU:'):
-                # Get handles to input and output tensors
-                              # Run inference
-                start = time.time()
-                output_dict = sess.run(tensor_dict,
-                                       feed_dict={image_tensor: np.expand_dims(image, 0)})
-                end = time.time()
-                print(f'sess.run {end - start}')
+    # with tf.device('/device:GPU:'):
+    # Get handles to input and output tensors
+    # Run inference
+    start = time.time()
+    output_dict = sess.run(tensor_dict,
+                           feed_dict={image_tensor: np.expand_dims(image, 0)})
+    end = time.time()
+    print(f'sess.run {end - start}')
 
-                # all outputs are float32 numpy arrays, so convert types as appropriate
-                start = time.time()
-                output_dict['num_detections'] = int(output_dict['num_detections'][0])
-                output_dict['detection_classes'] = output_dict[
-                    'detection_classes'][0].astype(np.uint8)
-                output_dict['detection_boxes'] = output_dict['detection_boxes'][0]
-                output_dict['detection_scores'] = output_dict['detection_scores'][0]
-                end = time.time()
-                print(f'output_dict {end - start}')
+    # all outputs are float32 numpy arrays, so convert types as appropriate
+    start = time.time()
+    output_dict['num_detections'] = int(output_dict['num_detections'][0])
+    output_dict['detection_classes'] = output_dict[
+        'detection_classes'][0].astype(np.uint8)
+    output_dict['detection_boxes'] = output_dict['detection_boxes'][0]
+    output_dict['detection_scores'] = output_dict['detection_scores'][0]
+    end = time.time()
+    print(f'output_dict {end - start}')
 
-                if 'detection_masks' in output_dict:
-                    output_dict['detection_masks'] = output_dict['detection_masks'][0]
-                return output_dict
-
+    if 'detection_masks' in output_dict:
+        output_dict['detection_masks'] = output_dict['detection_masks'][0]
+    return output_dict
 
 
 '''
@@ -219,13 +223,12 @@ PATH_DIR = '/dvmm-filer2/projects/Hearst/keyframes/'
 
 import time
 
-
-
-
 print("hi")
 image_dict = {}
 counter = 0
 flag = False
+dictionary = {}
+
 for root, dirs, files in os.walk(PATH_DIR):
 
     if flag == True:
@@ -274,6 +277,41 @@ for root, dirs, files in os.walk(PATH_DIR):
         print(f'image_dict.update: {end - start}')
         # save the results
 
+        filename = os.path.join(root, file)
+        namelist = filename.split('/')
+        namelist2 = [""] * 3
+
+        for item in namelist:
+            if not item:
+                continue
+
+            if item.endswith(".MXF") or item.endswith(".MP4") or item.endswith(".mp4"):
+                namelist2[1] = item
+
+            elif item.endswith(".png"):
+                namelist2[2] = item
+
+            else:
+                namelist2[0] = namelist2[0] + '/' + item
+
+        first = namelist2[0]
+        second = namelist2[1]
+        third = namelist2[2]
+        fourth = output_dict
+        # d = {namelist2[0]: {namelist2[1]: {namelist2[2]: val}}}
+
+        if first in dictionary:
+            if second in dictionary[first]:
+                if third in dictionary[first][second]:
+                    dictionary[first][second][third].append(fourth)
+                else:
+                    dictionary[first][second][third] = fourth
+            else:
+                dictionary[first][second] = {third: fourth}
+        else:
+            dictionary[first] = {second: {third: fourth}}
+
+
         ''' 
         # Visualization of the results of a detection.
         print("new IMAGE image should show - 1 starting 0.5")
@@ -291,4 +329,6 @@ for root, dirs, files in os.walk(PATH_DIR):
         plt.imshow(image_np)
         '''
 
-
+result_file_name = "jan_16_object_dectect_ms_coco.file"
+with open(result_file_name, 'wb') as handle:
+    pickle.dump(dictionary, handle, protocol=pickle.HIGHEST_PROTOCOL)
